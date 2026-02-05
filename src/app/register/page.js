@@ -45,7 +45,8 @@ export default function RegisterPage() {
           full_name: formData.name,
           phone: formData.phone,
         },
-        emailRedirectTo: `${window.location.origin}/dashboard`,
+        // השינוי הוא בשורה הזו:
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/verified`,
       },
     });
 
