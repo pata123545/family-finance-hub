@@ -67,6 +67,7 @@ export default function BudgetPage() {
     fetchData();
   }, []);
 
+
   async function fetchData() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -154,7 +155,8 @@ export default function BudgetPage() {
       .upsert({
         user_id: user.id,
         category: editItem.category,
-        limit_amount: parseFloat(editItem.amount) // Saving as limit_amount to match DB
+        limit_amount: parseFloat(editItem.amount), // Saving as limit_amount to match DB
+        period: 'monthly'
       }, { onConflict: 'category, user_id' });
 
     if (!error) {
