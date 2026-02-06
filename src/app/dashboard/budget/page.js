@@ -152,12 +152,14 @@ export default function BudgetPage() {
 
     const { error } = await supabase
       .from('budgets')
-      .upsert({
-        user_id: user.id,
-        category: editItem.category,
-        limit_amount: parseFloat(editItem.amount), // Saving as limit_amount to match DB
-        period: 'monthly'
-      }, { onConflict: 'category, user_id' });
+      .insert([
+        {
+          category: formData.name,       // שם הקטגוריה
+          limit_amount: formData.amount, // <--- התיקון החשוב: השם חייב להיות limit_amount
+          period: 'monthly',
+          user_id: user.id
+        }
+      ])
 
     if (!error) {
       setShowModal(false);
