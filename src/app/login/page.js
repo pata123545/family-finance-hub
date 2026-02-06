@@ -72,7 +72,7 @@ export default function LoginPage() {
           <div className="flex items-center gap-4 mb-10">
             <div className="relative group cursor-pointer">
               <div className="absolute inset-0 bg-[#4f39f6] blur-md rounded-xl group-hover:bg-[#4f39f6]/30 transition-all"></div>
-              <div className="relative w-12 h-12 bg-[#4f39f6] rounded-xl flex items-center justify-center text-black font-black text-2xl shadow-xl shadow-indigo-200 transform group-hover:rotate-3 transition-transform duration-300">
+              <div className="relative w-12 h-12 bg-[#4f39f6] rounded-xl flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-indigo-200 transform group-hover:rotate-3 transition-transform duration-300">
                 F
                 <div className="absolute top-[2px] right-[2px] w-4 h-4 bg-[#4f39f6] rounded-bl-lg"></div>
               </div>

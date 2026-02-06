@@ -65,16 +65,16 @@ export default function DashboardLayout({ children }) {
   if (loading) return <div className="h-screen w-full flex items-center justify-center bg-white text-slate-400 font-light tracking-widest text-sm uppercase">Loading...</div>;
 
   return (
-    <div className="min-h-screen bg-white dark:bg-zinc-950 flex flex-col font-sans text-slate-900">
+    <div className="h-screen overflow-hidden bg-white dark:bg-zinc-950 flex flex-col font-sans text-slate-900">
 
       {/* --- ה-Header המוגבל ברוחב (Centered Floating Header) --- */}
-      <div className="w-full sticky top-0 z-50 pt-4 px-6 lg:px-10">
+      <div className="w-full sticky top-0 z-50 pt-4 px-6 lg:px-10 shrink-0">
         <header className="max-w-8xl mx-auto h-20 border border-slate-100 bg-white backdrop-blur-md rounded-[2rem] shadow-sm dark:bg-zinc-900/80 dark:border-zinc-800">
           <div className="h-full px-8 flex items-center justify-between">
 
             {/* לוגו */}
             <div className="flex items-center gap-3 min-w-[150px]">
-              <div className="w-9 h-9 bg-slate-900 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-xl shadow-slate-200/50">
+              <div className="w-9 h-9 bg-[#4f39f6] rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-xl shadow-slate-200/50">
                 F
               </div>
               <span className="text-xl font-black tracking-tighter text-slate-900 dark:text-white hidden md:block">
@@ -108,7 +108,6 @@ export default function DashboardLayout({ children }) {
               <div className="hidden sm:block">
                 {user && <AIButton user={user} />}
               </div>
-
               <NotificationBell />
 
               <Link
@@ -162,7 +161,7 @@ export default function DashboardLayout({ children }) {
       </div>
 
       {/* --- תוכן העמוד הראשי --- */}
-      <main className="flex-1 h-full overflow-hidden relative w-full">
+      <main className="flex-1 h-full overflow-y-auto relative w-full scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
         {children}
       </main>
 

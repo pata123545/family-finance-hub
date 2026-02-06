@@ -7,12 +7,13 @@ import { useRouter } from "next/navigation";
 import {
     ArrowUpRight, ArrowDownRight, Wallet, TrendingUp, PiggyBank, Activity, Calendar, ArrowLeft,
     MoreHorizontal, ShoppingBag, Coffee, Car, Home, Zap, Smartphone, ArrowRightLeft, CreditCard,
-    Plus, Send, RefreshCcw, PieChart as PieChartIcon, LayoutDashboard, List
+    Plus, Send, RefreshCcw, PieChart as PieChartIcon, LayoutDashboard, List, Package
 } from "lucide-react";
 import {
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend,
     PieChart, Pie, Cell
 } from 'recharts';
+import InventoryDashboard from "@/components/InventoryDashboard";
 
 const COLORS = ['#4F46E5', '#10B981', '#F59E0B', '#6366F1', '#EC4899', '#8B5CF6'];
 
@@ -26,6 +27,8 @@ const getCategoryIcon = (category) => {
         'communication': <Smartphone size={18} />,
         'transfer': <ArrowRightLeft size={18} />,
         'salary': <Wallet size={18} />,
+        'sales': <TrendingUp size={18} />,
+        'inventory': <Package size={18} />,
     };
     return map[category?.toLowerCase()] || <CreditCard size={18} />;
 };
@@ -34,7 +37,8 @@ export default function DashboardPage() {
     const supabase = createClient();
     const router = useRouter();
     const [loading, setLoading] = useState(true);
-    const [activeTab, setActiveTab] = useState("overview"); // overview | analytics
+    const [activeTab, setActiveTab] = useState("overview"); // overview | analytics | inventory
+    const [currentUser, setCurrentUser] = useState(null); // Store full user object for child components
 
     // Summary Data
     const [summary, setSummary] = useState({
@@ -55,6 +59,7 @@ export default function DashboardPage() {
             try {
                 const { data: { user } } = await supabase.auth.getUser();
                 if (!user) return;
+                setCurrentUser(user);
 
                 // 1. User Profile
                 const { data: profile } = await supabase.from('profiles').select('full_name').eq('id', user.id).single();
@@ -84,6 +89,16 @@ export default function DashboardPage() {
                         assetsMap[typeName] = (assetsMap[typeName] || 0) + Number(acc.balance);
                     }
                 });
+
+                // Fetch Inventory Value for Asset Allocation (Integration Step)
+                const { data: inventoryItems } = await supabase.from('inventory_items').select('quantity, cost_price').eq('user_id', user.id);
+                if (inventoryItems && inventoryItems.length > 0) {
+                    const inventoryValue = inventoryItems.reduce((sum, item) => sum + (item.quantity * item.cost_price), 0);
+                    if (inventoryValue > 0) {
+                        assetsMap['מלאי עסקי'] = (assetsMap['מלאי עסקי'] || 0) + inventoryValue;
+                    }
+                }
+
                 const assetData = Object.entries(assetsMap).map(([name, value]) => ({ name, value }));
                 setAssetAllocationData(assetData);
 
@@ -135,7 +150,7 @@ export default function DashboardPage() {
                         rawDate: nextDate, // for sorting
                         icon: item.category === 'housing' ? <Home size={16} /> :
                             item.category === 'utilities' ? <Zap size={16} /> :
-                                item.category === 'loan' ? <Landmark size={16} /> : <Activity size={16} />
+                                item.category === 'loan' ? <Wallet size={16} /> : <Activity size={16} />
                     };
                 })
                     .sort((a, b) => a.rawDate - b.rawDate)
@@ -215,18 +230,19 @@ export default function DashboardPage() {
                     <p className="text-slate-500 mt-1">סקירה פיננסית {activeTab === 'overview' ? 'יומית' : 'מעמיקה'}</p>
                 </div>
 
-                <div className="bg-slate-100/80 p-1.5 rounded-xl inline-flex relative">
-                    {['overview', 'analytics', 'budget'].map((tab) => (
+                <div className="bg-slate-100/80 p-1.5 rounded-xl inline-flex relative overflow-x-auto max-w-full">
+                    {['overview', 'analytics', 'inventory', 'budget'].map((tab) => (
                         <button
                             key={tab}
                             onClick={() => handleTabChange(tab)}
-                            className={`relative z-10 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 ${activeTab === tab
+                            className={`relative z-10 px-6 py-2.5 rounded-lg text-sm font-bold transition-all duration-300 whitespace-nowrap ${activeTab === tab
                                 ? 'bg-white text-indigo-600 shadow-sm'
                                 : 'text-slate-500 hover:text-slate-700'
                                 }`}
                         >
                             {tab === 'overview' && 'סקירה'}
                             {tab === 'analytics' && 'ניתוח נתונים'}
+                            {tab === 'inventory' && 'ניהול מלאי'}
                             {tab === 'budget' && 'תקציב'}
                         </button>
                     ))}
@@ -239,15 +255,8 @@ export default function DashboardPage() {
 
                     {/* Quick Actions Bar */}
                     <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
-                        <Link href="/dashboard/transactions" className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-3 rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:scale-105 transition-transform">
-                            <Plus size={18} /> פעולה חדשה
-                        </Link>
-                        <button className="flex items-center gap-2 bg-white text-slate-700 border border-slate-100 px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 transition-colors">
-                            <Send size={18} className="text-indigo-500" /> העברת כספים
-                        </button>
-                        <button className="flex items-center gap-2 bg-white text-slate-700 border border-slate-100 px-5 py-3 rounded-2xl font-bold hover:bg-slate-50 transition-colors">
-                            <RefreshCcw size={18} className="text-emerald-500" /> המרת מט״ח
-                        </button>
+
+
                     </div>
 
                     {/* KPI Cards */}
@@ -261,7 +270,7 @@ export default function DashboardPage() {
                                     <span className="font-bold text-sm">שווי נכסים כולל</span>
                                 </div>
                                 <h2 className="text-4xl font-extrabold tracking-tight mb-2">₪{summary.totalBalance.toLocaleString()}</h2>
-                                <p className="text-slate-400 text-sm">כולל עו״ש, השקעות וחסכונות</p>
+                                <p className="text-slate-400 text-sm">כולל עו״ש, השקעות, מלאי וחסכונות</p>
                             </div>
                         </div>
 
@@ -423,6 +432,11 @@ export default function DashboardPage() {
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* --- TAB CONTENT: INVENTORY --- */}
+            {activeTab === 'inventory' && currentUser && (
+                <InventoryDashboard user={currentUser} />
             )}
         </div>
     );

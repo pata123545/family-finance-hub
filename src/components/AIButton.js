@@ -105,7 +105,7 @@ export default function AIButton({ user }) {
 
       {isOpen && (
         <div
-          className="fixed bottom-26 left-4 md:left-8 z-[100] flex flex-col bg-white rounded-[1rem] shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-bottom-10 zoom-in-95 duration-300 font-sans"
+          className="fixed top-24 left-6 md:left-10 z-[100] flex flex-col bg-white rounded-[1rem] shadow-2xl border border-slate-100 overflow-hidden animate-in fade-in slide-in-from-top-5 zoom-in-95 duration-300 font-sans"
           style={{
             width: 'min(90vw, 380px)',
             height: 'min(70vh, 600px)',
@@ -113,7 +113,7 @@ export default function AIButton({ user }) {
           }}
         >
           {/* Header (Forced LTR for specific layout request) */}
-          <div className="bg-gradient-to-r from-slate-900 to-slate-800 p-5 flex justify-between items-center text-white shrink-0 relative overflow-hidden" dir="rtl">
+          <div className="bg-gradient-to-r top-0 from-slate-900 to-slate-800 p-5 flex justify-between items-center text-white shrink-0 relative overflow-hidden" dir="rtl">
             {/* Background decoration */}
             <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500 rounded-full blur-[50px] opacity-20 -mr-10 -mt-10"></div>
 
