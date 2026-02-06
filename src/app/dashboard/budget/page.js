@@ -100,8 +100,9 @@ export default function BudgetPage() {
       // Merge Budgets with Spending
       const processedBudgets = (budgetData || []).map(b => ({
         ...b,
+        amount: b.limit_amount || b.amount || 0, // Handle both column names
         spent: spendingMap[b.category] || 0,
-        percentage: Math.min(100, Math.round(((spendingMap[b.category] || 0) / b.amount) * 100))
+        percentage: Math.min(100, Math.round(((spendingMap[b.category] || 0) / (b.limit_amount || b.amount || 1)) * 100))
       }));
 
       // Find unbudgeted categories
@@ -153,7 +154,7 @@ export default function BudgetPage() {
       .upsert({
         user_id: user.id,
         category: editItem.category,
-        amount: parseFloat(editItem.amount)
+        limit_amount: parseFloat(editItem.amount) // Saving as limit_amount to match DB
       }, { onConflict: 'category, user_id' });
 
     if (!error) {
@@ -228,14 +229,14 @@ export default function BudgetPage() {
 
         {/* Status */}
         <div className={`p-6 rounded-[2rem] border relative overflow-hidden flex flex-col justify-center transition-colors duration-300 ${summary.percentage >= 100 ? 'bg-red-50 border-red-100' :
-            summary.percentage >= 85 ? 'bg-amber-50 border-amber-100' :
-              'bg-emerald-50 border-emerald-100'
+          summary.percentage >= 85 ? 'bg-amber-50 border-amber-100' :
+            'bg-emerald-50 border-emerald-100'
           }`}>
           <div className="flex items-center gap-3 mb-1">
             {summary.percentage >= 100 ? <AlertTriangle className="text-red-500" /> : <CheckCircle2 className="text-emerald-600" />}
             <span className={`font-bold text-lg ${summary.percentage >= 100 ? 'text-red-600' :
-                summary.percentage >= 85 ? 'text-amber-600' :
-                  'text-emerald-700'
+              summary.percentage >= 85 ? 'text-amber-600' :
+                'text-emerald-700'
               }`}>
               {summary.percentage >= 100 ? 'חריגה מהתקציב' :
                 summary.percentage >= 85 ? 'קרוב ליעד' :
@@ -372,8 +373,8 @@ export default function BudgetPage() {
                               type="button"
                               onClick={() => setEditItem(prev => ({ ...prev, category: cat }))}
                               className={`px-3 py-2 rounded-lg text-xs font-bold border transition-all ${editItem.category === cat
-                                  ? 'bg-slate-900 text-white border-slate-900 shadow-md'
-                                  : 'bg-white text-slate-600 border-slate-100 hover:border-indigo-300'
+                                ? 'bg-slate-900 text-white border-slate-900 shadow-md'
+                                : 'bg-white text-slate-600 border-slate-100 hover:border-indigo-300'
                                 }`}
                             >
                               {cat}
